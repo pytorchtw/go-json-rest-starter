@@ -1,0 +1,23 @@
+version: '3'
+
+# Define services
+services:
+
+  # App Service
+  app:
+    # Configuration for building the docker image for the service
+    build:
+      context: . # Use an image built from the specified dockerfile in the current directory.
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080" # Forward the exposed port 8080 on the container to port 8080 on the host machine
+    environment: # Pass environment variables to the service
+      CGO_ENABLED: 0
+      GOOS: linux
+      GOARCH: amd64
+      GO111MODULE: "on"
+    volumes:
+      - .:/go-app
+      - $GOPATH/pkg/mod/cache:/go/pkg/mod/cache # mount local modules cache to speed up build process
+    working_dir: /go-app
+    command: sh -c "cd /go-app && go test ./... && go run countries.go"
